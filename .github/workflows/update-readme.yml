@@ -1,4 +1,4 @@
-name: Update README
+name: Update READMEs
 
 on:
   push:
@@ -7,17 +7,26 @@ on:
       - master
 
 jobs:
-  update-readme:
+  update-readmes:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-      - name: Copy README_ko.md to README.md
-        run: cp README_ko.md README.md
-      - name: Commit changes
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add README.md
-          git commit -m "Update README.md from README_ko.md"
-          git push
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Find and replace all readme_ko.md with readme.md
+      run: |
+        find . -type f -name 'readme_ko.md' | while read file; do
+          dir=$(dirname "$file")
+          cp "$file" "$dir/readme.md"
+        done
+
+    - name: Commit changes
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git add .
+        git commit -m "Update all readme.md files from readme_ko.md"
+        git push
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
